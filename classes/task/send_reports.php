@@ -142,7 +142,19 @@ class send_reports extends \core\task\scheduled_task {
 
                 gi.itemname        AS activityname,
                 gg.finalgrade,
-                gi.grademax
+                gi.grademax,
+
+                -- Due date
+                CASE 
+                    WHEN m.name = 'assign'  THEN a.duedate
+                    WHEN m.name ='quiz'     THEN q.timeclose
+                END AS duedate,
+
+                -- Submission date
+                CASE 
+                    WHEN m.name = 'assign'  THEN s.timemodified
+                    WHEN m.name = 'quiz'    THEN qa.timemodified
+                END AS submissiondate
 
             FROM {course} c
 
@@ -176,6 +188,26 @@ class send_reports extends \core\task\scheduled_task {
             LEFT JOIN {grade_grades} gg
                 ON gg.itemid = gi.id
             AND gg.userid = u.id
+
+            -- Assignment dates
+            LEFT JOIN {assign} a
+                ON a.id = cm.instance
+                AND m.name = 'assign'
+            
+            LEFT JOIN {assign_submission} s
+                ON s.assignment = a.id
+                AND s.userid = u.id
+                AND s.latest = 1
+            
+            -- Quiz dates
+            LEFT JOIN {quiz} q
+                ON q.id = cm.instance
+                AND m.name = 'quiz'
+
+            LEFT JOIN {quiz_attempts} qa
+                ON qa.quiz = q.id
+                AND qa.userid = u.id
+                AND qa.state = 'finished'
 
             WHERE c.id $courseinsql
             AND g.id $groupinsql
