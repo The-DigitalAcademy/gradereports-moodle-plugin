@@ -1,6 +1,6 @@
 <?php
 
-namespace local_compliancereports\helpers;
+namespace local_gradereports\helpers;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -8,7 +8,7 @@ class api_helper {
     public static function send_report(array $payload) {
 
 
-        $apiurl = get_config('local_compliancereports', 'api_url');
+        $apiurl = get_config('local_gradereports', 'api_url');
 
         if (empty($apiurl)) {
             debugging("❌ API url is not configured. Skipping task.", DEBUG_DEVELOPER);

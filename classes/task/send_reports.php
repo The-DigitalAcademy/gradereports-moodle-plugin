@@ -1,10 +1,10 @@
 <?php
-namespace local_compliancereports\task;
+namespace local_gradereports\task;
 
 
 defined('MOODLE_INTERNAL') || die();
 
-use local_compliancereports\helpers\api_helper;
+use local_gradereports\helpers\api_helper;
 
 /**
  * 
@@ -17,7 +17,7 @@ class send_reports extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('task_sendreports', 'local_compliancereports');
+        return get_string('task_sendreports', 'local_gradereports');
     }
 
     /**
@@ -27,7 +27,7 @@ class send_reports extends \core\task\scheduled_task {
 
         global $DB, $CFG;
 
-        // $tagname = get_config('local_compliancereports', 'course_tag');;
+        // $tagname = get_config('local_gradereports', 'course_tag');;
         // // Make sure tag API is available
         // require_once($CFG->dirroot . '/tag/lib.php');
 
@@ -56,7 +56,7 @@ class send_reports extends \core\task\scheduled_task {
         // $courses_data = $DB->get_records_sql($sql, $params);
         // $indexed_courses = array_values($courses_data);
         
-        // $groupstr = get_config('local_compliancereports', 'groups');
+        // $groupstr = get_config('local_gradereports', 'groups');
         // $groups = !empty($groupstr) ? explode(',', $groupstr) : [];
         
         // $quizzes_data = $DB->get_records('quiz', array('course' => $indexed_courses[0]->id), '', 'id, course, name');

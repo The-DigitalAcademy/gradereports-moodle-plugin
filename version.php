@@ -1,5 +1,5 @@
 <?php
 
-$plugin->component = 'local_compliancereports';
-$plugin->version   = 2026012021;
+$plugin->component = 'local_gradereports';
+$plugin->version   = 2026012100;
 $plugin->requires  = 2022041900;

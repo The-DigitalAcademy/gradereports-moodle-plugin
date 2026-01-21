@@ -17,16 +17,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Task schedule configuration for the local_compliancereports plugin.
+ * Task schedule configuration for the local_gradereports plugin.
  *
- * @package   local_compliancereports
+ * @package   local_gradereports
  * @copyright Year, You Name <your@email.address>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $tasks = [
     [
-        'classname' => 'local_compliancereports\task\send_reports',
+        'classname' => 'local_gradereports\task\send_reports',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
