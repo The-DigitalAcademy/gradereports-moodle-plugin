@@ -113,21 +113,51 @@ class send_reports extends \core\task\scheduled_task {
 
         // -------------------------------------------------------------
 
+        // Make sure tag API is available
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        // course tag
         $course_tagname = get_config('local_gradereports', 'course_tag');
+        $course_tag = \core_tag_tag::get_by_name(0, $course_tagname);
+        if (!$course_tag) return;
+        $course_tagid = $course_tag->id;
+
+        // activity tag
         $activity_tagname = get_config('local_gradereports', 'activity_tag');
-        $selected_groups = get_config('local_gradereports', 'groups');
+        $activity_tag = \core_tag_tag::get_by_name(0, $activity_tagname);
+        if (!$activity_tag) return;
+        $activity_tagid = $activity_tag->id;
 
-        echo "\n course_tagname:" . $course_tagname;
-        echo "\n activity_tagname:" . $activity_tagname;
-        echo "\n selected_groups:" . $selected_groups;
+        // tagged courses
+        $tagged_courses_sql = "
+            SELECT c.id, c.fullname, c.shortname
+            FROM {course} c
+            JOIN {tag_instance} ti ON ti.itemid = c.id
+            WHERE ti.itemtype = 'course'
+            AND ti.tagid = :tagid
+            AND c.id <> :siteid
+        ";
+        $tagged_courses_params = [
+            'tagid'  => $course_tagid,
+            'siteid' => SITEID,
+        ];
 
-        $courseids = [2];
-        $groupids = [1];
-        $tagids = [7];
+        $tagged_courses = $DB->get_records_sql($tagged_courses_sql, $tagged_courses_params);
+        $indexed_courses = array_values($tagged_courses);
+        $courseids = array_column($indexed_courses, 'id');
+
+        // groups
+        $groupstr = get_config('local_gradereports', 'groups');
+        $groupids = !empty($groupstr) ? explode(',', $groupstr) : [];
+
+        echo "\n courseids:" . implode(",", $courseids);
+        echo "\n groupids:" . implode(",", $groupids);
+        echo "\n activity_tagid:" . $activity_tagid;
+        
 
         list($courseinsql, $courseparams) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'courseid');
         list($groupinsql,  $groupparams)  = $DB->get_in_or_equal($groupids,  SQL_PARAMS_NAMED, 'groupid');
-        list($taginsql,    $tagparams)    = $DB->get_in_or_equal($tagids,    SQL_PARAMS_NAMED, 'tagid');
+        list($taginsql,    $tagparams)    = $DB->get_in_or_equal([$activity_tagid],    SQL_PARAMS_NAMED, 'tagid');
 
         $params = array_merge($courseparams, $groupparams, $tagparams);
 
