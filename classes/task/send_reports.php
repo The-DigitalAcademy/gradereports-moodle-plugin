@@ -27,7 +27,7 @@ class send_reports extends \core\task\scheduled_task {
 
         global $DB, $CFG;
 
-        // $tagname = get_config('local_gradereports', 'course_tag');;
+        // $tagname = get_config('local_gradereports', 'course_tag');
         // // Make sure tag API is available
         // require_once($CFG->dirroot . '/tag/lib.php');
 
@@ -112,6 +112,14 @@ class send_reports extends \core\task\scheduled_task {
 
 
         // -------------------------------------------------------------
+
+        $course_tagname = get_config('local_gradereports', 'course_tag');
+        $activity_tagname = get_config('local_gradereports', 'activity_tag');
+        $selected_groups = get_config('local_gradereports', 'groups');
+
+        echo "\n course_tagname:" . $course_tagname;
+        echo "\n activity_tagname:" . $activity_tagname;
+        echo "\n selected_groups:" . $selected_groups;
 
         $courseids = [2];
         $groupids = [1];

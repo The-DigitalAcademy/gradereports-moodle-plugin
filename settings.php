@@ -27,21 +27,30 @@ if ($ADMIN->fulltree) {
         PARAM_URL // Parameter type
     ));
 
-    // Setting for the tag used for Complance Report Courses
+    // Setting for the course tag
     $settings->add(new admin_setting_configtext(
-        'local_gradereports/course_tag', // Setting name
-        get_string('course_tag', 'local_gradereports'), // Title
-        get_string('course_tag_desc', 'local_gradereports'), // Description
-        'compliance_report', // Default value
-        PARAM_TEXT // Parameter type
+        'local_gradereports/course_tag',
+        get_string('course_tag', 'local_gradereports'),
+        get_string('course_tag_desc', 'local_gradereports'),
+        'compliance_report',
+        PARAM_TEXT
     ));
 
-    // Setting for group option selection
+    // Setting for group selection
     $settings->add(new admin_setting_configmultiselect(
         'local_gradereports/groups',
         get_string('groups', 'local_gradereports'),
         get_string('groups_desc', 'local_gradereports'),
         [],
         $groups
+    ));
+
+    // Setting for the activity tag
+    $settings->add(new admin_setting_configtext(
+        'local_gradereports/activity_tag',
+        get_string('activity_tag', 'local_gradereports'),
+        get_string('activity_tag_desc', 'local_gradereports'),
+        'deliverable',
+        PARAM_TEXT
     ));
 }

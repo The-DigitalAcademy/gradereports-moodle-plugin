@@ -16,7 +16,6 @@ class api_helper {
         }
 
         $jsondata = json_encode($payload);
-        echo "\n json:" . $jsondata;
 
         // Initialize cURL session
         $ch = curl_init($apiurl);
