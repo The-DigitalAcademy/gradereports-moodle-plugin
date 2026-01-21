@@ -1,6 +1,6 @@
 <?php
 
-$string['pluginname'] = 'Compliance Reports';
+$string['pluginname'] = 'Grade Reports';
 $string['task_sendreports'] = 'Send assignment and learner reports to API';
 
 $string['api_url'] = 'Reports API url';
