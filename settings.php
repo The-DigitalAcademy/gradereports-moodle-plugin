@@ -37,7 +37,7 @@ if ($ADMIN->fulltree) {
     ));
 
     // Setting for group selection
-    $settings->add(new admin_setting_configmultiselect(
+    $settings->add(new admin_setting_configmulticheckbox(
         'local_gradereports/groups',
         get_string('groups', 'local_gradereports'),
         get_string('groups_desc', 'local_gradereports'),
