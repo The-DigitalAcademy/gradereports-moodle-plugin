@@ -1,10 +1,35 @@
 <?php
 
+/**
+ * Helper class for handling API transmissions for Grade Reports.
+ *
+ * This class manages the communication between Moodle and the external monitoring 
+ * API, ensuring data is formatted and transmitted securely via cURL.
+ *
+ * @package     local_gradereports
+ * @subpackage  helpers
+ */
+
 namespace local_gradereports\helpers;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * api_helper class
+ * * Provides static methods to transmit structured student performance data
+ * to configured external endpoints.
+ */
 class api_helper {
+    
+    /**
+     * Sends a JSON-encoded payload to the external monitoring API.
+     *
+     * This method retrieves the target URL from the plugin's configuration,
+     * encodes the provided array, and performs a POST request.
+     *
+     * @param array $payload The structured performance metrics to be transmitted.
+     * @return bool Returns true if the transmission was successful, false otherwise.
+     */
     public static function send_report(array $payload) {
 
 
@@ -17,10 +42,9 @@ class api_helper {
 
         $jsondata = json_encode($payload);
 
-        // Initialize cURL session
         $ch = curl_init($apiurl);
         
-        // Set cURL options
+        // Configure cURL
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsondata);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -30,17 +54,15 @@ class api_helper {
          
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
-         // 4. Execute the cURL request and get the response
-        $response = curl_exec($ch);
+        curl_exec($ch);
         
-        // Check for errors
         if (curl_errno($ch)) {
-            echo 'cURL error: ' . curl_error($ch);
             debugging('❌ cURL error: ' . curl_error($ch), DEBUG_DEVELOPER);
+            curl_close($ch);
             return false;
         }
 
-        // 5. Close the cURL session
         curl_close($ch);
+        return true;
     }
 }
