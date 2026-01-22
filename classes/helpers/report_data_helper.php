@@ -23,10 +23,13 @@ class report_data_helper {
                 u.id AS userid,
                 u.firstname,
                 u.lastname,
-                gi.itemmodule AS activitytype,
+                CASE
+                    WHEN gi.itemmodule = 'assign' THEN 'assignment'
+                    ELSE gi.itemmodule
+                END AS activitytype,
+
                 gi.itemname AS activityname,
-                gg.finalgrade,
-                gi.grademax,
+                ROUND(finalgrade / grademax * 100, 2) AS grade_percent,
                 
                 CASE
                     WHEN gi.itemmodule = 'assign' THEN a.duedate
@@ -36,7 +39,22 @@ class report_data_helper {
                 CASE 
                     WHEN gi.itemmodule = 'assign' THEN a_s.timemodified
                     WHEN gi.itemmodule = 'quiz' THEN qa.timemodified
-                END AS submissiondate
+                END AS submissiondate,
+
+                CASE
+                    WHEN gi.itemmodule = 'assign' THEN
+                        CASE 
+                            WHEN a.duedate < a_s.timemodified THEN 'late'
+                            WHEN a.duedate > a_s.timemodified THEN 'on time'
+                            ELSE 'unknown'
+                        END
+                    WHEN gi.itemmodule = 'quiz' THEN
+                        CASE
+                            WHEN q.timeclose < qa.timemodified THEN 'late'
+                            WHEN q.timeclose > qa.timemodified THEN 'on time'
+                            ELSE 'unknown'
+                        END
+                END AS submission_status
 
             FROM mdl_grade_grades gg
 
