@@ -28,8 +28,8 @@ $tasks = [
     [
         'classname' => 'local_gradereports\task\send_reports',
         'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
+        'minute' => '30',
+        'hour' => '16',
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
