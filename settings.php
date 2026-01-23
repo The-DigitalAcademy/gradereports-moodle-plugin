@@ -29,10 +29,19 @@ if ($ADMIN->fulltree) {
 
     // Setting for the course tag
     $settings->add(new admin_setting_configtext(
+        'local_gradereports/api_key_header',
+        get_string('api_key_header', 'local_gradereports'),
+        get_string('api_key_header_desc', 'local_gradereports'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // Setting for the course tag
+    $settings->add(new admin_setting_configtext(
         'local_gradereports/course_tag',
         get_string('course_tag', 'local_gradereports'),
         get_string('course_tag_desc', 'local_gradereports'),
-        'compliance_report',
+        'course_report',
         PARAM_TEXT
     ));
 

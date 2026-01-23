@@ -34,6 +34,7 @@ class api_helper {
 
 
         $apiurl = get_config('local_gradereports', 'api_url');
+        $api_key_header = get_config('local_gradereports', 'api_key_header');
 
         if (empty($apiurl)) {
             debugging("❌ API url is not configured. Skipping task.", DEBUG_DEVELOPER);
@@ -42,15 +43,20 @@ class api_helper {
 
         $jsondata = json_encode($payload);
 
+        // set HTTP HEADER
+        $headers = [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($jsondata), // Content-Length is good practice
+        ];
+
+        if ($api_key_header) array_push($headers, $api_key_header);
+
         $ch = curl_init($apiurl);
         
         // Configure cURL
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsondata);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsondata) // Content-Length is good practice
-        ]);        
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);        
          
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
