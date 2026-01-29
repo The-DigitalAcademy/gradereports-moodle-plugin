@@ -63,8 +63,8 @@ class report_data_helper {
 
                 -- Normalize deadlines across different activity types.
                 CASE
-                    WHEN gi.itemmodule = 'assign' THEN a.duedate
-                    WHEN gi.itemmodule = 'quiz' THEN q.timeclose
+                    WHEN gi.itemmodule = 'assign' THEN ao.duedate
+                    WHEN gi.itemmodule = 'quiz' THEN qo.timeclose
                 END AS duedate,
                 
                 -- Normalize submission times.
@@ -78,13 +78,13 @@ class report_data_helper {
                     WHEN gi.itemmodule = 'assign' THEN
                         CASE 
                             WHEN a.duedate > 0 AND a.duedate < a_s.timemodified THEN 'late'
-                            WHEN a.duedate = 0 OR a.duedate > a_s.timemodified THEN 'on time'
+                            WHEN a.duedate = 0 OR a.duedate > a_s.timemodified THEN 'ontime'
                             ELSE 'unknown'
                         END
                     WHEN gi.itemmodule = 'quiz' THEN
                         CASE
                             WHEN q.timeclose > 0 AND q.timeclose < qa.timemodified THEN 'late'
-                            WHEN q.timeclose = 0 OR q.timeclose > qa.timemodified THEN 'on time'
+                            WHEN q.timeclose = 0 OR q.timeclose > qa.timemodified THEN 'ontime'
                             ELSE 'unknown'
                         END
                 END AS submission_status
@@ -106,14 +106,22 @@ class report_data_helper {
             JOIN {course} c
                 ON c.id = gi.courseid
                 
-            -- Join specific activity tables to get deadlines (duedate / timeclose)
+            -- Join specific activity tables to get group override deadlines (duedate / timeclose)
             LEFT JOIN {assign} a
                 ON a.id = gi.iteminstance
                 AND gi.itemmodule = 'assign'
             
+            LEFT JOIN {assign_overrides} ao
+                ON ao.assignid = a.id
+                AND ao.groupid = g.id
+            
             LEFT JOIN {quiz} q
                 ON q.id = gi.iteminstance
                 AND gi.itemmodule = 'quiz'
+            
+            LEFT JOIN {quiz_overrides} qo
+                ON qo.quiz = q.id
+                AND qo.groupid = g.id
                 
             JOIN {course_modules} cm
                 ON cm.instance = gi.iteminstance
