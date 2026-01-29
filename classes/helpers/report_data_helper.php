@@ -77,14 +77,14 @@ class report_data_helper {
                 CASE
                     WHEN gi.itemmodule = 'assign' THEN
                         CASE 
-                            WHEN a.duedate > 0 AND a.duedate < a_s.timemodified THEN 'late'
-                            WHEN a.duedate = 0 OR a.duedate > a_s.timemodified THEN 'ontime'
+                            WHEN ao.duedate > 0 AND ao.duedate < a_s.timemodified THEN 'late'
+                            WHEN ao.duedate = 0 OR ao.duedate > a_s.timemodified THEN 'ontime'
                             ELSE 'unknown'
                         END
                     WHEN gi.itemmodule = 'quiz' THEN
                         CASE
-                            WHEN q.timeclose > 0 AND q.timeclose < qa.timemodified THEN 'late'
-                            WHEN q.timeclose = 0 OR q.timeclose > qa.timemodified THEN 'ontime'
+                            WHEN qo.timeclose > 0 AND qo.timeclose < qa.timemodified THEN 'late'
+                            WHEN qo.timeclose = 0 OR qo.timeclose > qa.timemodified THEN 'ontime'
                             ELSE 'unknown'
                         END
                 END AS submission_status
