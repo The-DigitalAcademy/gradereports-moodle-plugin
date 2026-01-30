@@ -47,113 +47,126 @@ class report_data_helper {
         // Main Query: Aggregates Gradebook data with Activity-specific deadlines.
         $sql = "
             SELECT 
-                gg.id AS gradeid,
-                c.fullname AS coursename,
-                g.name AS groupname,
-                u.id AS userid,
-                u.firstname,
-                u.lastname,
+                CONCAT(c.id, '_', g.id, '_', u.id, '_', cm.id) AS uniqueid,
+                c.fullname AS coursename, 
+                g.name AS groupname, 
+                u.id AS userid, 
+                u.firstname, 
+                u.lastname,  
                 CASE
-                    WHEN gi.itemmodule = 'assign' THEN 'assignment'
-                    ELSE gi.itemmodule
+                    WHEN m.name = 'assign' THEN 'assignment'
+                    ELSE m.name
                 END AS activitytype,
-
-                gi.itemname AS activityname,
-                ROUND(finalgrade / grademax * 100, 2) AS grade_percent,
-
+                -- Normalize activity name across different activity types.
+                CASE
+                    WHEN m.name = 'assign' THEN a.name
+                    WHEN m.name = 'quiz' THEN q.name
+                END AS activityname,
                 -- Normalize deadlines across different activity types.
                 CASE
-                    WHEN gi.itemmodule = 'assign' THEN ao.duedate
-                    WHEN gi.itemmodule = 'quiz' THEN qo.timeclose
+                    WHEN m.name = 'assign' THEN ao.duedate
+                    WHEN m.name = 'quiz' THEN qo.timeclose
                 END AS duedate,
+                
+                CASE 
+                    WHEN m.name = 'assign' THEN ROUND(gg_a.finalgrade / gi_assign.grademax * 100, 2)
+                    WHEN m.name = 'quiz' THEN ROUND(gg_q.finalgrade / gi_quiz.grademax * 100, 2)
+                END AS grade,
                 
                 -- Normalize submission times.
                 CASE 
-                    WHEN gi.itemmodule = 'assign' THEN a_s.timemodified
-                    WHEN gi.itemmodule = 'quiz' THEN qa.timemodified
+                    WHEN m.name = 'assign' THEN a_s.timemodified
+                    WHEN m.name = 'quiz' THEN qa.timemodified
                 END AS submissiondate,
-
                 -- Logic to determine if a student submitted on time or late.
                 CASE
-                    WHEN gi.itemmodule = 'assign' THEN
-                        CASE 
-                            WHEN ao.duedate > 0 AND ao.duedate < a_s.timemodified THEN 'late'
-                            WHEN ao.duedate = 0 OR ao.duedate > a_s.timemodified THEN 'ontime'
-                            ELSE 'unknown'
-                        END
-                    WHEN gi.itemmodule = 'quiz' THEN
+                    WHEN m.name = 'assign' THEN
                         CASE
-                            WHEN qo.timeclose > 0 AND qo.timeclose < qa.timemodified THEN 'late'
-                            WHEN qo.timeclose = 0 OR qo.timeclose > qa.timemodified THEN 'ontime'
-                            ELSE 'unknown'
+                            WHEN a_s.timemodified IS NULL AND FROM_UNIXTIME(ao.duedate) < NOW() THEN 'missed'
+                            WHEN ao.duedate IS NULL AND a_s.timemodified > 0 THEN 'ontime'
+                            WHEN ao.duedate > 0 AND ao.duedate < a_s.timemodified THEN 'late'
+                            WHEN ao.duedate > a_s.timemodified THEN 'ontime'
+                            ELSE 'pending'
                         END
-                END AS submission_status
-
-            FROM {grade_grades} gg
-
-            JOIN {user} u
-                ON u.id = gg.userid
-            
-            JOIN {groups_members} gm
-                ON gm.userid = u.id
-
-            JOIN {groups} g
-                ON g.id = gm.groupid
-
-            JOIN {grade_items} gi
-                ON gi.id = gg.itemid
+                    WHEN m.name = 'quiz' THEN
+                        CASE
+                            WHEN qa.timemodified IS NULL AND FROM_UNIXTIME(qo.timeclose) < NOW() THEN 'missed'
+                            WHEN qo.timeclose IS NULL AND qa.timemodified > 0 THEN 'ontime'
+                            WHEN qo.timeclose > 0 AND qo.timeclose < qa.timemodified THEN 'late'
+                            WHEN qo.timeclose > qa.timemodified THEN 'ontime'
+                            ELSE 'pending'
+                        END
+                END AS submissionstatus
                 
-            JOIN {course} c
-                ON c.id = gi.courseid
-                
-            -- Join specific activity tables to get group override deadlines (duedate / timeclose)
-            LEFT JOIN {assign} a
-                ON a.id = gi.iteminstance
-                AND gi.itemmodule = 'assign'
-            
-            LEFT JOIN {assign_overrides} ao
-                ON ao.assignid = a.id
-                AND ao.groupid = g.id
-            
-            LEFT JOIN {quiz} q
-                ON q.id = gi.iteminstance
-                AND gi.itemmodule = 'quiz'
-            
-            LEFT JOIN {quiz_overrides} qo
-                ON qo.quiz = q.id
-                AND qo.groupid = g.id
-                
-            JOIN {course_modules} cm
-                ON cm.instance = gi.iteminstance
+            FROM {groups} g 
 
-            JOIN {modules} m
-                ON m.id = cm.module
-                AND m.name IN ('quiz', 'assign')
+            JOIN {groups_members} gm 
+                ON gm.groupid = g.id 
 
-            -- Filter activities by tags applied at the Course Module level.
+            JOIN {user} u 
+                ON u.id = gm.userid 
+
+            LEFT JOIN {course} c 
+                ON c.id = g.courseid 
+
+            JOIN {course_modules} cm 
+                ON cm.course = c.id 
+                
             JOIN {tag_instance} ti
                 ON ti.itemid = cm.id
-                AND ti.itemtype = 'course_modules'
                 
             JOIN {tag} t
                 ON t.id = ti.tagid
 
-            -- Attempt to find the user's submission/attempt to calculate timeliness.
-            LEFT JOIN {quiz_attempts} qa
-                ON qa.quiz = q.id
-                AND qa.userid = u.id
-                AND qa.attempt = 1
+            JOIN {modules} m 
+                ON m.id = cm.module
                 
+            LEFT JOIN {assign} a
+                ON a.id = cm.instance
+
+            LEFT JOIN {assign_overrides} ao
+                ON ao.assignid = a.id
+                AND ao.groupid = g.id
+                
+            LEFT JOIN {quiz} q
+                ON q.id = cm.instance
+
+            LEFT JOIN {quiz_overrides} qo
+                ON qo.quiz = q.id
+                AND qo.groupid = g.id
+
             LEFT JOIN {assign_submission} a_s
                 ON a_s.assignment = a.id
                 AND a_s.userid = u.id
-                AND a_s.status = 'submitted'
 
-            WHERE gg.finalgrade IS NOT NULL
+            LEFT JOIN {grade_items} gi_assign
+                ON gi_assign.iteminstance = a_s.assignment
+                AND gi_assign.itemmodule = 'assign'
+
+            LEFT JOIN {grade_grades} gg_a
+                ON gg_a.itemid = gi_assign.id
+                AND gg_a.userid = a_s.userid
+
+            LEFT JOIN {quiz_attempts} qa
+                ON qa.quiz = q.id
+                AND qa.userid = u.id
+                
+            LEFT JOIN {grade_items} gi_quiz
+                ON gi_quiz.iteminstance = qa.quiz
+                AND gi_quiz.itemmodule = 'quiz'
+
+            LEFT JOIN {grade_grades} gg_q
+                ON gg_q.itemid = gi_quiz.id
+                AND gg_q.userid = qa.userid
+
+
+
+            WHERE c.id $courseinsql
             AND g.id $groupinsql
-            AND gi.itemmodule IN ('quiz', 'assign')
-            AND gi.courseid $courseinsql
-            AND ti.tagid $taginsql
+            AND m.name IN ('quiz', 'assign')
+            AND t.id $taginsql
+
+            ORDER BY firstname, lastname
         ";
 
         $records = $DB->get_records_sql($sql, $params);
