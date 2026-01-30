@@ -47,7 +47,7 @@ class report_data_helper {
         // Main Query: Aggregates Gradebook data with Activity-specific deadlines.
         $sql = "
             SELECT 
-                CONCAT(c.id, '_', g.id, '_', u.id, '_', cm.id) AS uniqueid,
+                CONCAT(c.id, g.id, u.id, cm.id, FLOOR(1 + (RAND() * 100))) AS uid,
                 c.fullname AS coursename, 
                 g.name AS groupname, 
                 u.id AS userid, 

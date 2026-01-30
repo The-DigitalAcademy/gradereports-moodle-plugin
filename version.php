@@ -1,5 +1,5 @@
 <?php
 
 $plugin->component = 'local_gradereports';
-$plugin->version   = 2026013002;
+$plugin->version   = 2026013003;
 $plugin->requires  = 2022041900;
