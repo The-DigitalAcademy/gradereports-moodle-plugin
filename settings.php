@@ -28,12 +28,11 @@ if ($ADMIN->fulltree) {
     ));
 
     // Setting for the course tag
-    $settings->add(new admin_setting_configtext(
-        'local_gradereports/api_key_header',
-        get_string('api_key_header', 'local_gradereports'),
-        get_string('api_key_header_desc', 'local_gradereports'),
-        '',
-        PARAM_TEXT
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_gradereports/api_key',
+        get_string('api_key', 'local_gradereports'),
+        get_string('api_key_desc', 'local_gradereports'),
+        ''
     ));
 
     // Setting for the course tag

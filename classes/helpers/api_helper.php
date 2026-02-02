@@ -34,10 +34,10 @@ class api_helper {
 
 
         $apiurl = get_config('local_gradereports', 'api_url');
-        $api_key_header = get_config('local_gradereports', 'api_key_header');
+        $api_key = get_config('local_gradereports', 'api_key');
 
         if (empty($apiurl)) {
-            debugging("❌ API url is not configured. Skipping task.", DEBUG_DEVELOPER);
+            mtrace("❌ API url is not configured. Skipping task.", DEBUG_DEVELOPER);
             return false;
         }
 
@@ -49,7 +49,7 @@ class api_helper {
             'Content-Length: ' . strlen($jsondata), // Content-Length is good practice
         ];
 
-        if ($api_key_header) array_push($headers, $api_key_header);
+        if ($api_key) array_push($headers, 'apiKey: '. $api_key);
 
         $ch = curl_init($apiurl);
         
@@ -63,7 +63,7 @@ class api_helper {
         curl_exec($ch);
         
         if (curl_errno($ch)) {
-            debugging('❌ cURL error: ' . curl_error($ch), DEBUG_DEVELOPER);
+            mtrace('❌ cURL error: ' . curl_error($ch));
             curl_close($ch);
             return false;
         }

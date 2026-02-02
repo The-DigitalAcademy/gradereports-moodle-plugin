@@ -6,8 +6,8 @@ $string['task_sendreports'] = 'Send assignment and learner reports to API';
 $string['api_url'] = 'External API url';
 $string['api_url_desc'] = 'The full URL where grade reports will be POSTed to (e.g., https://gradereporting.com/api/reports).';
 
-$string['api_key_header'] = 'API Key Header';
-$string['api_key_header_desc'] = 'key and value property of the API KEY header (optional) eg. X-API-KEY: private-api-key';
+$string['api_key'] = 'API Key';
+$string['api_key_desc'] = 'value for the "apiKey" header property  (optional) eg. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
 
 $string['course_tag'] = 'Course Tag';
 $string['course_tag_desc'] = 'Tag name for courses that will be included in the report. Add this tag name to the relevant course.';
