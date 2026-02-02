@@ -66,7 +66,9 @@ git clone https://github.com/The-DigitalAcademy/gradereports-moodle-plugin grade
 
 ### Configuration (Site Administration)
 
-After installation, you must configure the autograder service details:
+After installation, you must configure the Plugin and Schedule Task settings
+
+**Plugin Settings**
 
 1.  Navigate to `Site Administration > Plugins > Local plugins > Grade Reports`
 2.  Configure the following settings:
@@ -79,6 +81,8 @@ After installation, you must configure the autograder service details:
 | **Activity Tag**     | Tag name for assignments/quizzes that will be included in the report. |
 
 3.  Click **Save changes**.
+4.  Navigate to `Site Administration > server > Tasks > Scheduled tasks`
+5.  Locate Grade Reports and click the update icon to set the task's schedule.
 
 ---
 
