@@ -86,7 +86,7 @@ After installation, you must configure the autograder service details:
 
 To ensure the plugin is correctly capturing data and communicating with your API, follow these steps to perform a manual end-to-end test.
 
-**1. Data Preparation**
+**1. Data Preparation**\
 Before running the task, ensure the "scope" of your data is correctly tagged in Moodle:
 
 - **Course Selection**: Navigate to a course's settings and add the Course Tag (as defined in your Admin settings).
@@ -100,7 +100,7 @@ Before running the task, ensure the "scope" of your data is correctly tagged in 
 
 - **API Readiness**: Ensure your destination server is active and ready to accept POST requests at the URL specified in the plugin settings.
 
-**2. Manual Task Execution (CLI)**
+**2. Manual Task Execution (CLI)**\
 Running the task via the terminal allows you to see real-time errors or logs that might be hidden in the web interface.
 
 1. **Open your Terminal** and navigate to your Moodle root directory:
@@ -116,7 +116,7 @@ cd /path/to/your/moodle
 path/to/php admin/cli/scheduled_task.php --execute='\local_gradereports\task\send_reports'
 ```
 
-**3. Success Verification**
+**3. Success Verification**\
 Verify the data transmission through the following methods:
 
 - **Moodle UI**: Navigate to `Site administration > Server > Tasks > Scheduled tasks`. Locate Grade Reports and verify the "Last run" timestamp is current.
