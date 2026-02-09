@@ -61,22 +61,26 @@ class report_data_helper {
                 CASE
                     WHEN m.name = 'assign' THEN a.name
                     WHEN m.name = 'quiz' THEN q.name
+                    WHEN m.name = 'forum' THEN f.name
                 END AS activityname,
                 -- Normalize deadlines across different activity types.
                 CASE
                     WHEN m.name = 'assign' THEN ao.duedate
                     WHEN m.name = 'quiz' THEN qo.timeclose
+                    WHEN m.name = 'forum' THEN f.duedate
                 END AS duedate,
                 
                 CASE 
                     WHEN m.name = 'assign' THEN ROUND(gg_a.finalgrade / gi_assign.grademax * 100, 2)
                     WHEN m.name = 'quiz' THEN ROUND(gg_q.finalgrade / gi_quiz.grademax * 100, 2)
+                    WHEN m.name = 'forum' AND fp.discussion > 0 THEN 100 -- participation score
                 END AS grade,
                 
                 -- Normalize submission times.
                 CASE 
                     WHEN m.name = 'assign' THEN a_s.timemodified
                     WHEN m.name = 'quiz' THEN qa.timemodified
+                    WHEN m.name = 'forum' THEN fp.created
                 END AS submissiondate,
                 -- Logic to determine if a student submitted on time or late.
                 CASE
@@ -94,6 +98,14 @@ class report_data_helper {
                             WHEN qo.timeclose IS NULL AND qa.timemodified > 0 THEN 'ontime'
                             WHEN qo.timeclose > 0 AND qo.timeclose < qa.timemodified THEN 'late'
                             WHEN qo.timeclose > qa.timemodified THEN 'ontime'
+                            ELSE 'pending'
+                        END
+                    WHEN m.name = 'forum' THEN
+                        CASE 
+                            WHEN fp.created IS NULL AND FROM_UNIXTIME(f.duedate) < NOW() THEN 'missed'
+                            WHEN f.duedate IS NULL AND fp.created > 0 THEN 'ontime'
+                            WHEN f.duedate > 0 AND f.duedate < fp.created THEN 'late'
+                            WHEN f.duedate > fp.created THEN 'ontime'
                             ELSE 'pending'
                         END
                 END AS submissionstatus
@@ -159,11 +171,20 @@ class report_data_helper {
                 ON gg_q.itemid = gi_quiz.id
                 AND gg_q.userid = qa.userid
 
+            LEFT JOIN mdl_forum f
+                ON f.id = cm.instance
+
+            LEFT JOIN mdl_forum_discussions fd
+	            ON fd.forum = f.id
+    
+            LEFT JOIN mdl_forum_posts fp
+	            ON fp.discussion = fd.id
+                AND fp.userid = u.id
 
 
             WHERE c.id $courseinsql
             AND g.id $groupinsql
-            AND m.name IN ('quiz', 'assign')
+            AND m.name IN ('quiz', 'assign', 'forum')
             AND t.id $taginsql
 
             ORDER BY firstname, lastname
