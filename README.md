@@ -78,7 +78,7 @@ After installation, you must configure the Plugin and Schedule Task settings
 | **External API url** | The full URL where grade reports will be POSTed to.                   |
 | **Course Tag**       | Tag name for courses that will be included in the report.             |
 | **Groups**           | Groups that will be included in the report                            |
-| **Activity Tag**     | Tag name for assignments/quizzes that will be included in the report. |
+| **Activity Tag**     | Tag name for assignments, quizzes and forums that will be included in the report. |
 
 3.  Click **Save changes**.
 4.  Navigate to `Site Administration > server > Tasks > Scheduled tasks`
@@ -140,7 +140,7 @@ The plugin sends an HTTP POST request with a JSON array to the API URL.
 |`userid`|String|user's ID.
 |`firstname`|String|User's first name.
 |`lastname`|String|User's last name.
-|`activitytype`| String| Type of activity (`assignment` or `quiz`).
+|`activitytype`| String| Type of activity (`assignment`, `quiz`, or `forum`).
 |`activityname`|String|The name of the activity.
 |`grade`|String|user's grade out of 100.
 |`duedate`|String|The activity's submission deadline (unix timestamp).
